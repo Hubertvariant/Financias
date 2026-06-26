@@ -1,0 +1,6 @@
+{
+  "name": "Gerenciador Financeiro Completo",
+  "description": "Aplicativo de finanças pessoais completo com controle de fluxo por banco, receitas, despesas pagas/agendadas, metas de economia e lista de desejos simulada.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

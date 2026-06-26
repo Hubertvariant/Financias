@@ -1,0 +1,1861 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FiançaPro | Gestor Financeiro Completo</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Space Grotesk', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- Vue 3 CDN (Global Build) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+      [v-cloak] { display: none !important; }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .font-display {
+        font-family: 'Space Grotesk', sans-serif;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50/65 text-slate-800 antialiased">
+    <div id="app" v-cloak class="flex h-screen overflow-hidden">
+      
+      <!-- SIDEBAR (Desktop) -->
+      <aside class="hidden md:flex flex-col w-64 bg-white border-r border-slate-100 p-6 shrink-0 justify-between">
+        <div class="space-y-8">
+          <!-- Logo -->
+          <div class="flex items-center gap-2.5">
+            <div class="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-mono font-bold text-lg">
+              F
+            </div>
+            <div>
+              <span class="font-semibold text-slate-800 text-sm tracking-tight block">FiançaPro</span>
+              <span class="text-[10px] font-medium font-mono text-slate-400 uppercase tracking-widest block font-bold">Inteligente</span>
+            </div>
+          </div>
+
+          <!-- Perfil do Usuário -->
+          <div class="p-3.5 bg-slate-50/70 rounded-xl flex items-center gap-3">
+            <div class="h-9 w-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-650 font-bold shrink-0 text-sm">
+              HA
+            </div>
+            <div class="truncate">
+              <span class="text-xs font-bold text-slate-700 block truncate">hubertadulto@gmail.com</span>
+              <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-ping"></span>
+                Ativo (Local)
+              </span>
+            </div>
+          </div>
+
+          <!-- Navegação -->
+          <nav class="space-y-1">
+            <button 
+              @click="activeTab = 'dashboard'"
+              :class="activeTab === 'dashboard' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/50'"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+            >
+              <!-- Dashboard Icon -->
+              <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+              Painel Geral
+            </button>
+
+            <button 
+              @click="activeTab = 'transactions'; filterStatus = 'all';"
+              :class="activeTab === 'transactions' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/50'"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+            >
+              <!-- Receipt Icon -->
+              <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+              Lançamentos (Fluxo)
+            </button>
+
+            <button 
+              @click="activeTab = 'goals'"
+              :class="activeTab === 'goals' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/50'"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+            >
+              <!-- Target Icon -->
+              <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              Metas de Economia
+            </button>
+
+            <button 
+              @click="activeTab = 'wishlist'"
+              :class="activeTab === 'wishlist' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/50'"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+            >
+              <!-- Sparkles Icon -->
+              <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              Lista de Desejos
+            </button>
+          </nav>
+        </div>
+
+        <!-- Botão Redefinir Dados -->
+        <div class="pt-4 border-t border-slate-100">
+          <button 
+            @click="resetData"
+            class="w-full flex items-center justify-center gap-2 text-[10px] font-mono text-slate-400 hover:text-indigo-600 p-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+          >
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H19" />
+            </svg>
+            Redefinir Demonstração
+          </button>
+        </div>
+      </aside>
+
+      <!-- WORKSPACE PRINCIPAL -->
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- HEADER -->
+        <header class="bg-white border-b border-slate-100 py-4 px-6 shrink-0 flex justify-between items-center z-10">
+          <div class="flex items-center gap-2 md:hidden">
+            <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-mono font-bold text-sm">
+              F
+            </div>
+            <span class="font-bold text-slate-800 text-sm tracking-tight">FiançaPro</span>
+          </div>
+
+          <div class="hidden md:flex items-center gap-2 text-slate-450 text-xs font-mono font-semibold">
+            <span>Home</span>
+            <span>/</span>
+            <span class="text-slate-600 capitalize font-bold">{{ activeTab === 'goals' ? 'Metas' : activeTab === 'wishlist' ? 'Desejos' : activeTab }}</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <button 
+              @click="resetData"
+              class="md:hidden p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg cursor-pointer"
+              title="Redefinir Demonstração"
+            >
+              <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H19" />
+              </svg>
+            </button>
+            <div class="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold font-mono">
+              US
+            </div>
+          </div>
+        </header>
+
+        <!-- CONTEÚDO PRINCIPAL (Dinamizado por ActiveTab) -->
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 pb-24 md:pb-8 bg-slate-50/30">
+          <div class="max-w-7xl mx-auto space-y-6">
+            
+            <!-- 1. TAB PAINEL GERAL (DASHBOARD) -->
+            <div v-if="activeTab === 'dashboard'" class="space-y-6">
+              
+              <!-- Cards de Sumário -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card Saldo -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <p class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">Saldo Consolidado Geral</p>
+                      <h3 class="text-2xl font-bold font-sans text-slate-800 mt-1">
+                        R$ {{ formatMoney(totals.totalRealBalance) }}
+                      </h3>
+                    </div>
+                    <div class="p-3 bg-indigo-50 text-indigo-650 rounded-xl">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center text-xs text-slate-500">
+                    <span>Previsão (incluindo Contas Pendentes):</span>
+                    <span :class="totals.totalProjectedBalance >= 0 ? 'text-emerald-600' : 'text-rose-600'" class="font-semibold font-mono">
+                      R$ {{ formatMoney(totals.totalProjectedBalance) }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Card Receitas -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <p class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">Receitas Recebidas</p>
+                      <h3 class="text-2xl font-bold font-sans text-emerald-650 mt-1">
+                        + R$ {{ formatMoney(totals.paidRevenues) }}
+                      </h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-650 rounded-xl">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center text-xs text-slate-400">
+                    <span>Previstas a receber:</span>
+                    <span class="font-semibold text-slate-600 font-mono">+ R$ {{ formatMoney(totals.pendingRevenues) }}</span>
+                  </div>
+                </div>
+
+                <!-- Card Despesas -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <p class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">Despesas Pagas</p>
+                      <h3 class="text-2xl font-bold font-sans text-rose-650 mt-1">
+                        - R$ {{ formatMoney(totals.paidExpenses) }}
+                      </h3>
+                    </div>
+                    <div class="p-3 bg-rose-50 text-rose-650 rounded-xl">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center text-xs text-slate-400">
+                    <span>A pagar (pendente):</span>
+                    <span class="font-semibold text-amber-600 font-mono">- R$ {{ formatMoney(totals.pendingExpenses) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alerta Dinâmico -->
+              <div v-if="totals.pendingExpenses > 0 || wishlistCount > 0" class="bg-amber-50/70 border border-amber-100 rounded-2xl p-4 flex items-start gap-3 text-amber-800">
+                <svg class="h-5 w-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div class="text-sm">
+                  <h4 class="font-bold text-amber-900">Avisos Financeiros:</h4>
+                  <ul class="list-disc pl-4 mt-1 space-y-0.5">
+                    <li v-if="totals.pendingExpenses > 0">Você possui R$ {{ formatMoney(totals.pendingExpenses) }} em contas pendentes (vou pagar).</li>
+                    <li v-if="wishlistCount > 0">Existem {{ wishlistCount }} compras futuras planejadas na sua lista de desejos.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Saldos por Banco (Visualizador de Origem/Destino) -->
+              <div>
+                <h3 class="text-lg font-bold font-sans text-slate-800 mb-4 flex items-center gap-2">
+                  <svg class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  Saldos de Contas & Bancos
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div 
+                    v-for="bank in calculatedBanks" 
+                    :key="bank.id" 
+                    :class="bank.color"
+                    class="p-5 rounded-2xl shadow-xs border border-black/5 hover:scale-[1.01] transition-transform flex flex-col justify-between h-36"
+                  >
+                    <div>
+                      <div class="flex justify-between items-center">
+                        <span class="font-mono text-xs font-semibold tracking-wider opacity-90">{{ bank.name }}</span>
+                        <div class="w-8 h-5 bg-white/20 rounded-md backdrop-blur-xs flex items-center justify-center text-[8px] font-bold">
+                          DEBIT
+                        </div>
+                      </div>
+                      <div class="mt-2 text-xl font-bold font-sans tracking-tight">
+                        R$ {{ formatMoney(bank.currentBalance) }}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between items-center text-xs opacity-80 pt-2 border-t border-white/10 mt-2">
+                        <span>Previsto:</span>
+                        <span class="font-bold font-mono">R$ {{ formatMoney(bank.projectedBalance) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gráficos Interativos Integrados (Pure CSS/SVG Dashboard) -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Gráfico de Fluxo de Caixa -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs flex flex-col">
+                  <h4 class="text-sm font-bold font-sans text-slate-700 uppercase tracking-wider mb-4">
+                    Resumo do Fluxo de Caixa (Receitas vs Despesas)
+                  </h4>
+                  
+                  <div class="space-y-6 py-4">
+                    <!-- Receitas Realizadas Bar -->
+                    <div class="space-y-2">
+                      <div class="flex justify-between items-center text-xs">
+                        <span class="font-medium text-slate-500">Receitas Recebidas</span>
+                        <span class="font-bold text-emerald-600 font-mono">R$ {{ formatMoney(totals.paidRevenues) }}</span>
+                      </div>
+                      <div class="w-full h-4 bg-slate-100 rounded-lg overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-lg" :style="{ width: getPercentage(totals.paidRevenues, Math.max(totals.paidRevenues, totals.paidExpenses)) + '%' }"></div>
+                      </div>
+                    </div>
+
+                    <!-- Despesas Realizadas Bar -->
+                    <div class="space-y-2">
+                      <div class="flex justify-between items-center text-xs">
+                        <span class="font-medium text-slate-500">Despesas Pagas</span>
+                        <span class="font-bold text-rose-500 font-mono">R$ {{ formatMoney(totals.paidExpenses) }}</span>
+                      </div>
+                      <div class="w-full h-4 bg-slate-100 rounded-lg overflow-hidden">
+                        <div class="h-full bg-rose-500 rounded-lg" :style="{ width: getPercentage(totals.paidExpenses, Math.max(totals.paidRevenues, totals.paidExpenses)) + '%' }"></div>
+                      </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-50 grid grid-cols-2 gap-4 text-center text-xs">
+                      <div>
+                        <span class="text-slate-400 block mb-0.5">Saldo Líquido Pago</span>
+                        <span class="font-bold text-slate-800 font-mono">R$ {{ formatMoney(totals.paidRevenues - totals.paidExpenses) }}</span>
+                      </div>
+                      <div>
+                        <span class="text-slate-400 block mb-0.5">Comprometimento Previsto</span>
+                        <span class="font-bold text-amber-600 font-mono">
+                          {{ totals.paidRevenues > 0 ? ((totals.paidExpenses + totals.pendingExpenses) / (totals.paidRevenues + totals.pendingRevenues) * 100).toFixed(1) : 0 }}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gráfico de Categorias mais caras -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs flex flex-col">
+                  <h4 class="text-sm font-bold font-sans text-slate-700 uppercase tracking-wider mb-4">
+                    Despesas Ativas por Categoria
+                  </h4>
+                  
+                  <div v-if="categorySummary.length === 0" class="flex-1 flex flex-col justify-center items-center py-10 text-slate-400 text-sm">
+                    <svg class="h-10 w-10 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Nenhuma despesa para exibir no gráfico
+                  </div>
+
+                  <div v-else class="space-y-4">
+                    <div v-for="(cat, index) in categorySummary.slice(0, 5)" :key="cat.name" class="space-y-1.5">
+                      <div class="flex justify-between items-center text-xs">
+                        <div class="flex items-center gap-2">
+                          <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: getCategoryColor(index) }"></span>
+                          <span class="text-slate-600 font-medium">{{ cat.name }}</span>
+                        </div>
+                        <div class="font-mono text-slate-700 font-semibold">
+                          R$ {{ formatMoney(cat.value) }} <span class="text-slate-400 text-[10px] font-normal">({{ cat.pct }}%)</span>
+                        </div>
+                      </div>
+                      <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full" :style="{ backgroundColor: getCategoryColor(index), width: cat.pct + '%' }"></div>
+                      </div>
+                    </div>
+                    <div v-if="categorySummary.length > 5" class="text-center pt-2 text-[10px] text-slate-400 font-mono italic">
+                      + {{ categorySummary.length - 5 }} outras categorias secundárias
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Próximas Contas a Vencer -->
+              <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-sm font-bold font-sans text-slate-700 flex items-center gap-2 uppercase tracking-wide">
+                    <svg class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Contas Pendentes a Vencer (Vou Pagar)
+                  </h3>
+                  <button 
+                    @click="activeTab = 'transactions'; filterStatus = 'pendente';"
+                    class="text-xs font-mono font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+                  >
+                    Ver Todas
+                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div v-if="pendingTransactions.length === 0" class="py-6 text-center text-sm text-slate-400 bg-slate-50/50 rounded-xl flex flex-col items-center justify-center gap-1.5">
+                  <svg class="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Tudo pago! Nenhuma conta pendente no momento.
+                </div>
+
+                <div v-else class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="border-b border-slate-100 text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">
+                        <th class="py-3 px-4">Vencimento</th>
+                        <th class="py-3 px-4">Descrição</th>
+                        <th class="py-3 px-4">Banco Origem</th>
+                        <th class="py-3 px-4">Categoria</th>
+                        <th class="py-3 px-4 text-right">Valor</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 text-slate-700 text-sm">
+                      <tr v-for="t in pendingTransactions.slice(0, 3)" :key="t.id" class="hover:bg-slate-50/50 transition-colors">
+                        <td class="py-3 px-4 font-mono text-xs text-rose-500 font-semibold">{{ t.date }}</td>
+                        <td class="py-3 px-4 font-medium max-w-[200px] truncate">{{ t.description }}</td>
+                        <td class="py-3 px-4">
+                          <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-650 text-xs font-mono font-medium">
+                            {{ t.bank }}
+                          </span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-500 text-xs font-semibold">{{ t.category }}</td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-800 font-mono">
+                          R$ {{ formatMoney(t.amount) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- 2. TAB LANÇAMENTOS (TRANSACTIONS) -->
+            <div v-if="activeTab === 'transactions'" class="space-y-6">
+              
+              <!-- Header -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 class="text-xl font-bold font-sans text-slate-800">Lançamentos Financeiros</h2>
+                  <p class="text-sm text-slate-500">Cadastre e gerencie receitas de contas, despesas e compras programadas.</p>
+                </div>
+                <button 
+                  @click="openNewTransactionModal"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all duration-200 self-stretch sm:self-auto text-center justify-center shadow-xs"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Novo Lançamento
+                </button>
+              </div>
+
+              <!-- Filtros -->
+              <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs space-y-4">
+                <div class="flex flex-col md:flex-row gap-4">
+                  <!-- Busca -->
+                  <div class="relative flex-1">
+                    <svg class="absolute left-3 top-3.5 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input 
+                      type="text" 
+                      placeholder="Pesquisar por transação..."
+                      v-model="search"
+                      class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-indigo-500 transition-all text-sm"
+                    />
+                  </div>
+
+                  <!-- Tipo Filtro -->
+                  <div class="flex bg-slate-100/75 p-1 rounded-xl shrink-0">
+                    <button 
+                      @click="filterType = 'all'"
+                      :class="filterType === 'all' ? 'bg-white text-slate-800 shadow-2xs' : 'text-slate-500 hover:text-slate-700'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+                    >
+                      Todos
+                    </button>
+                    <button 
+                      @click="filterType = 'receita'"
+                      :class="filterType === 'receita' ? 'bg-emerald-500 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-700'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+                    >
+                      Receitas
+                    </button>
+                    <button 
+                      @click="filterType = 'despesa'"
+                      :class="filterType === 'despesa' ? 'bg-rose-500 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-700'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+                    >
+                      Despesas
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Detalhes do filtro -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-50">
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-mono font-semibold text-slate-400">Status do Pagamento</label>
+                    <select v-model="filterStatus" class="w-full py-2 px-3 rounded-lg border border-slate-200 text-slate-650 bg-slate-50 text-sm focus:outline-hidden focus:border-indigo-500">
+                      <option value="all">Ver Tudo</option>
+                      <option value="pago">Pago / Recebido</option>
+                      <option value="pendente">Pendente (Vou Pagar)</option>
+                      <option value="futuro">Planejado (Compra Futura)</option>
+                    </select>
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-mono font-semibold text-slate-400">Banco / Conta</label>
+                    <select v-model="filterBank" class="w-full py-2 px-3 rounded-lg border border-slate-200 text-slate-650 bg-slate-50 text-sm focus:outline-hidden focus:border-indigo-500">
+                      <option value="all">Todos os Bancos</option>
+                      <option v-for="b in banks" :key="b.id" :value="b.name">{{ b.name }}</option>
+                    </select>
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-mono font-semibold text-slate-400">Categoria</label>
+                    <select v-model="filterCategory" class="w-full py-2 px-3 rounded-lg border border-slate-200 text-slate-650 bg-slate-50 text-sm focus:outline-hidden focus:border-indigo-500">
+                      <option value="all">Todas as Categorias</option>
+                      <option v-for="cat in allCategories" :key="cat" :value="cat">{{ cat }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tabela -->
+              <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+                <div v-if="filteredTransactions.length === 0" class="py-16 text-center text-slate-400 font-sans flex flex-col items-center justify-center gap-2">
+                  <svg class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p class="font-bold text-slate-650">Nenhum lançamento encontrado.</p>
+                  <p class="text-xs text-slate-400">Tente ajustar seus filtros de busca acima.</p>
+                </div>
+
+                <div v-else class="overflow-x-auto">
+                  <table class="w-full border-collapse text-left">
+                    <thead>
+                      <tr class="bg-slate-50/50 border-b border-slate-100 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+                        <th class="py-3 px-6">Status</th>
+                        <th class="py-3 px-4">Data</th>
+                        <th class="py-3 px-4">Descrição</th>
+                        <th class="py-3 px-4">Banco/Conta</th>
+                        <th class="py-3 px-4">Categoria</th>
+                        <th class="py-3 px-4 text-right">Valor</th>
+                        <th class="py-3 px-6 text-center">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 text-slate-700 text-sm font-sans">
+                      <tr v-for="t in filteredTransactions" :key="t.id" class="hover:bg-slate-50/50 transition-colors">
+                        <!-- Status Badge clickable to toggle -->
+                        <td class="py-4 px-6">
+                          <button 
+                            @click="toggleTransactionStatus(t.id)"
+                            :class="{
+                              'bg-emerald-50 text-emerald-700 hover:bg-emerald-100': t.status === 'pago',
+                              'bg-amber-50 text-amber-700 hover:bg-amber-100': t.status === 'pendente',
+                              'bg-purple-50 text-purple-700 hover:bg-purple-100': t.status === 'futuro'
+                            }"
+                            class="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer select-none transition-colors"
+                            title="Clique para alternar o status do pagamento"
+                          >
+                            <span v-if="t.status === 'pago'" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span v-if="t.status === 'pendente'" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span v-if="t.status === 'futuro'" class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                            <span class="capitalize">{{ t.status === 'pago' ? 'pago' : t.status === 'pendente' ? 'vou pagar' : 'planejado' }}</span>
+                          </button>
+                        </td>
+
+                        <!-- Data -->
+                        <td class="py-4 px-4 font-mono text-xs text-slate-500">{{ t.date }}</td>
+
+                        <!-- Descrição -->
+                        <td class="py-4 px-4 font-medium max-w-[200px]">
+                          <div class="truncate text-slate-800 font-semibold" :title="t.description">{{ t.description }}</div>
+                          <div v-if="t.notes" class="text-[10px] text-slate-400 font-mono truncate">{{ t.notes }}</div>
+                        </td>
+
+                        <!-- Banco -->
+                        <td class="py-4 px-4">
+                          <span class="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-mono font-medium">
+                            {{ t.bank }}
+                          </span>
+                        </td>
+
+                        <!-- Categoria -->
+                        <td class="py-4 px-4">
+                          <span class="text-slate-500 text-xs font-semibold bg-slate-100 px-2.5 py-1 rounded-md">
+                            {{ t.category }}
+                          </span>
+                        </td>
+
+                        <!-- Valor -->
+                        <td class="py-4 px-4 text-right">
+                          <span :class="t.type === 'despesa' ? 'text-rose-600' : 'text-emerald-600'" class="font-mono font-bold text-sm">
+                            {{ t.type === 'despesa' ? '-' : '+' }} R$ {{ formatMoney(t.amount) }}
+                          </span>
+                        </td>
+
+                        <!-- Ações -->
+                        <td class="py-4 px-6 text-center">
+                          <div class="flex items-center justify-center gap-2">
+                            <button @click="openEditTransactionModal(t)" class="p-1 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer" title="Editar">
+                              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                              </svg>
+                            </button>
+                            <button @click="deleteTransaction(t.id)" class="p-1 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer" title="Excluir">
+                              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- 3. TAB METAS DE ECONOMIA (GOALS) -->
+            <div v-if="activeTab === 'goals'" class="space-y-6">
+              
+              <!-- Header -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 class="text-xl font-bold font-sans text-slate-800">Metas de Economia</h2>
+                  <p class="text-sm text-slate-500">Defina objetivos e transfira fundos de suas contas de forma integrada.</p>
+                </div>
+                <button 
+                  @click="openNewGoalModal"
+                  class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all duration-200 self-stretch sm:self-auto text-center justify-center shadow-xs"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Nova Meta
+                </button>
+              </div>
+
+              <!-- Metas Grid -->
+              <div v-if="goals.length === 0" class="bg-white p-12 text-center rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center justify-center gap-3">
+                <svg class="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h4 class="font-bold text-slate-700">Você ainda não tem metas cadastradas</h4>
+                  <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Defina objetivos como "Reserva de Emergência" ou "Viagem de Fim de Ano" para começar a poupar.</p>
+                </div>
+                <button @click="openNewGoalModal" class="mt-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-emerald-700 transition-colors">
+                  Criar Minha Primeira Meta
+                </button>
+              </div>
+
+              <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="goal in goals" :key="goal.id" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between hover:border-slate-200 transition-colors">
+                  <div>
+                    <div class="flex justify-between items-start gap-2">
+                      <div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 font-mono text-[10px] font-bold uppercase">
+                          {{ goal.category || 'Geral' }}
+                        </span>
+                        <h4 class="font-bold text-slate-800 text-base mt-2 truncate" :title="goal.name">{{ goal.name }}</h4>
+                      </div>
+                      <div class="flex items-center gap-1 shrink-0">
+                        <button @click="openEditGoalModal(goal)" class="p-1 text-slate-400 hover:text-indigo-600 cursor-pointer">
+                          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                        <button @click="deleteGoal(goal.id)" class="p-1 text-slate-400 hover:text-rose-600 cursor-pointer">
+                          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Valores de Economia -->
+                    <div class="mt-4 grid grid-cols-2 gap-2">
+                      <div>
+                        <p class="text-[10px] uppercase font-mono tracking-wider text-slate-400 font-semibold">Guardado</p>
+                        <p class="font-sans font-bold text-emerald-600 text-lg">
+                          R$ {{ formatMoney(goal.currentAmount) }}
+                        </p>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-[10px] uppercase font-mono tracking-wider text-slate-400 font-semibold">Objetivo</p>
+                        <p class="font-sans font-bold text-slate-800 text-lg">
+                          R$ {{ formatMoney(goal.targetAmount) }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Progresso Bar -->
+                    <div class="mt-4 space-y-1.5">
+                      <div class="flex justify-between items-center text-xs text-slate-500">
+                        <span>Progresso acumulado</span>
+                        <span class="font-mono font-bold text-slate-700">{{ getGoalProgress(goal).toFixed(1) }}%</span>
+                      </div>
+                      <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div 
+                          class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-indigo-500"
+                          :style="{ width: Math.min(100, getGoalProgress(goal)) + '%' }"
+                        ></div>
+                      </div>
+                    </div>
+
+                    <!-- Data e Restante -->
+                    <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
+                      <span class="flex items-center gap-1">
+                        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Prazo: {{ goal.deadline }}
+                      </span>
+                      <span v-if="goal.targetAmount - goal.currentAmount > 0" class="font-semibold text-slate-500">
+                        Falta R$ {{ formatMoney(goal.targetAmount - goal.currentAmount) }}
+                      </span>
+                      <span v-else class="font-bold text-emerald-600">🎉 Meta Concluída!</span>
+                    </div>
+                  </div>
+
+                  <!-- Botão de depósito rápido para a poupança -->
+                  <button 
+                    v-if="goal.targetAmount - goal.currentAmount > 0"
+                    @click="triggerDeposit(goal)"
+                    class="mt-5 w-full bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200/60 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Poupado / Depositar nesta Meta
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- 4. TAB LISTA DE DESEJOS (WISHLIST) -->
+            <div v-if="activeTab === 'wishlist'" class="space-y-6">
+              
+              <!-- Header -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 class="text-xl font-bold font-sans text-slate-800">Futuras Compras & Lista de Desejos</h2>
+                  <p class="text-sm text-slate-500">Planeje futuras compras e simule o impacto delas no seu saldo bancário atual.</p>
+                </div>
+                <button 
+                  @click="openNewWishModal"
+                  class="bg-purple-600 hover:bg-purple-750 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all duration-200 self-stretch sm:self-auto text-center justify-center shadow-xs"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Planejar Nova Compra
+                </button>
+              </div>
+
+              <!-- Análise e Resumo -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Conselho -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs flex items-start gap-4 md:col-span-2">
+                  <div class="p-3 bg-purple-50 text-purple-650 rounded-xl">
+                    <svg class="h-6 w-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <div class="space-y-1">
+                    <h4 class="font-bold text-slate-800 text-sm">Conselho do Assistente FiançaPro</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                      {{ getFinancialAdvice() }}
+                    </p>
+                    <div class="pt-2 text-[10px] uppercase font-mono tracking-wider font-bold">
+                      Saldo Consolidado Atual: <span class="text-indigo-600 font-mono">R$ {{ formatMoney(totals.totalRealBalance) }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Estatísticas de desejos -->
+                <div class="bg-gradient-to-br from-purple-50 to-indigo-50/50 p-6 rounded-2xl border border-purple-100/40 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <span class="text-[9px] font-mono tracking-wider text-purple-800 font-bold uppercase bg-purple-100 px-2.5 py-0.5 rounded-full">
+                      Simulação Estimada
+                    </span>
+                    <div class="mt-3">
+                      <p class="text-xs text-slate-500 font-medium">Total de Desejos Planejados:</p>
+                      <h3 class="text-2xl font-bold font-sans text-purple-950 mt-1">
+                        R$ {{ formatMoney(totals.totalWishlistBalance) }}
+                      </h3>
+                    </div>
+                  </div>
+                  <div class="text-slate-400 text-xs font-mono pt-3 border-t border-purple-150/40 mt-4 flex justify-between">
+                    <span>Desejos Cadastrados:</span>
+                    <span class="font-bold text-slate-700">{{ wishlistItems.length }} itens</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista -->
+              <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+                <div v-if="wishlistItems.length === 0" class="py-12 text-center rounded-2xl flex flex-col items-center justify-center gap-3">
+                  <svg class="h-10 w-10 text-slate-300 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  <div>
+                    <h4 class="font-bold text-slate-700">Nenhum plano ou desejo futuro registrado</h4>
+                    <p class="text-xs text-slate-400 mt-1">Quer comprar algo mas quer analisar o saldo de contas antes? Cadastre aqui.</p>
+                  </div>
+                  <button @click="openNewWishModal" class="mt-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer">
+                    Começar a Planejar
+                  </button>
+                </div>
+
+                <div v-else class="overflow-x-auto">
+                  <table class="w-full border-collapse text-left">
+                    <thead>
+                      <tr class="bg-slate-50/50 border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+                        <th class="py-3.5 px-6">Futuro Item</th>
+                        <th class="py-3.5 px-4">Planejado para Data</th>
+                        <th class="py-3.5 px-4">Origem Estimada</th>
+                        <th class="py-3.5 px-4">Categoria</th>
+                        <th class="py-3.5 px-4 text-right">Valor Planejado</th>
+                        <th class="py-3.5 px-6 text-center">Converter para Compra Real</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 text-slate-700 text-sm font-sans">
+                      <tr v-for="item in wishlistItems" :key="item.id" class="hover:bg-slate-50/40 transition-colors">
+                        <!-- Item Desc -->
+                        <td class="py-4 px-6">
+                          <div class="flex items-center gap-2.5">
+                            <div 
+                              :class="totals.totalRealBalance >= item.amount ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500'"
+                              class="p-1.5 rounded-lg shrink-0" 
+                              :title="totals.totalRealBalance >= item.amount ? 'Você tem saldo suficiente no geral para este item' : 'Atenção: Saldo geral atual é menor do que este item'"
+                            >
+                              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <span class="font-bold text-slate-800 text-sm block max-w-[200px] truncate">{{ item.description }}</span>
+                              <span v-if="item.notes" class="text-[10px] text-slate-400 font-mono block max-w-[200px] truncate">{{ item.notes }}</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <!-- Date -->
+                        <td class="py-4 px-4 font-mono text-xs text-slate-500">{{ item.date }}</td>
+
+                        <!-- Bank -->
+                        <td class="py-4 px-4">
+                          <span class="px-2.5 py-0.5 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-mono font-semibold">
+                            {{ item.bank }}
+                          </span>
+                        </td>
+
+                        <!-- Category -->
+                        <td class="py-4 px-4">
+                          <span class="text-slate-550 text-xs font-semibold bg-slate-100 px-2 py-1 rounded-md">
+                            {{ item.category }}
+                          </span>
+                        </td>
+
+                        <!-- Valor -->
+                        <td class="py-4 px-4 text-right font-bold text-slate-800 font-mono">
+                          R$ {{ formatMoney(item.amount) }}
+                        </td>
+
+                        <!-- Decisão -->
+                        <td class="py-4 px-6 text-center">
+                          <div class="flex items-center justify-center gap-3">
+                            <button 
+                              @click="triggerConvertWish(item)"
+                              class="bg-indigo-50 hover:bg-emerald-50 text-indigo-700 hover:text-emerald-700 border border-indigo-100 hover:border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                            >
+                              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                              Comprar Real!
+                            </button>
+                            <button @click="deleteTransaction(item.id)" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-slate-50 cursor-pointer">
+                              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </main>
+
+        <!-- BARRA NAVEGAÇÃO BOTTOM (Mobile Only) -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-150 py-2.5 px-4 md:hidden flex justify-around items-center z-10 shadow-lg">
+          <button 
+            @click="activeTab = 'dashboard'"
+            :class="activeTab === 'dashboard' ? 'text-indigo-600' : 'text-slate-400'"
+            class="flex flex-col items-center gap-1 cursor-pointer"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            <span class="text-[10px] font-bold">Painel</span>
+          </button>
+
+          <button 
+            @click="activeTab = 'transactions'; filterStatus = 'all';"
+            :class="activeTab === 'transactions' ? 'text-indigo-600' : 'text-slate-400'"
+            class="flex flex-col items-center gap-1 cursor-pointer"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <span class="text-[10px] font-bold">Fluxo</span>
+          </button>
+
+          <button 
+            @click="activeTab = 'goals'"
+            :class="activeTab === 'goals' ? 'text-indigo-600' : 'text-slate-400'"
+            class="flex flex-col items-center gap-1 cursor-pointer"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span class="text-[10px] font-bold">Metas</span>
+          </button>
+
+          <button 
+            @click="activeTab = 'wishlist'"
+            :class="activeTab === 'wishlist' ? 'text-indigo-600' : 'text-slate-400'"
+            class="flex flex-col items-center gap-1 cursor-pointer"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            <span class="text-[10px] font-bold">Desejos</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- ==============================================
+           MODAL 1: CADASTRO / EDIÇÃO DE LANÇAMENTO
+           ============================================== -->
+      <div v-if="isTransactionModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-end z-50">
+        <div class="bg-white w-full max-w-md h-full p-6 overflow-y-auto flex flex-col justify-between shadow-xl">
+          <div class="space-y-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+              <h3 class="text-lg font-bold font-sans text-slate-800">
+                {{ editingTransaction ? 'Editar Lançamento' : 'Novo Lançamento' }}
+              </h3>
+              <button @click="isTransactionModalOpen = false" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-650 cursor-pointer">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form @submit.prevent="submitTransaction" class="space-y-4" id="frm-transaction">
+              <!-- Tipo -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-mono font-semibold text-slate-400">Tipo de Lançamento</label>
+                <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+                  <button 
+                    type="button" 
+                    @click="formType = 'despesa'"
+                    :class="formType === 'despesa' ? 'bg-rose-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-700'"
+                    class="py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    Despesa (- OUT)
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="formType = 'receita'"
+                    :class="formType === 'receita' ? 'bg-emerald-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-700'"
+                    class="py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    Receita (+ IN)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Descrição -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Descrição / Nome</label>
+                <input 
+                  type="text" 
+                  required 
+                  maxLength="100" 
+                  placeholder="Ex: Aluguel, Supermercado, Salário..."
+                  v-model="formDescription"
+                  class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500"
+                />
+              </div>
+
+              <!-- Valor -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Valor (R$)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2.5 text-xs font-bold font-mono text-slate-400">R$</span>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    min="0.01" 
+                    required 
+                    placeholder="0.00"
+                    v-model="formAmount"
+                    class="w-full py-2.5 pl-9 pr-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <!-- Banco -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">
+                  {{ formType === 'receita' ? 'Banco de Destino (+ entrou)' : 'Banco de Origem (- saiu)' }}
+                </label>
+                <select v-model="formBank" class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm bg-white focus:outline-hidden focus:border-indigo-500">
+                  <option v-for="b in banks" :key="b.id" :value="b.name">{{ b.name }}</option>
+                </select>
+              </div>
+
+              <!-- Categoria -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Categoria</label>
+                <select v-model="formCategory" class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm bg-white focus:outline-hidden focus:border-indigo-500">
+                  <option v-for="cat in (formType === 'receita' ? categories.receita : categories.despesa)" :key="cat" :value="cat">
+                    {{ cat }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Data -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Data / Vencimento</label>
+                <input 
+                  type="date" 
+                  required 
+                  v-model="formDate"
+                  class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500 font-mono"
+                />
+              </div>
+
+              <!-- Status -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Status Financeiro</label>
+                <select v-model="formStatus" class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm bg-white focus:outline-hidden focus:border-indigo-500">
+                  <option value="pago">Já Realizado (Paga / Recebida)</option>
+                  <option value="pendente">Pendente de Pagamento (Vou Pagar)</option>
+                  <option value="futuro">Futura Planejada (Estou pensando em comprar / Desejo)</option>
+                </select>
+              </div>
+
+              <!-- Notas -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Observações (opcional)</label>
+                <textarea 
+                  placeholder="Insira notas adicionais..."
+                  v-model="formNotes"
+                  rows="2"
+                  class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500"
+                ></textarea>
+              </div>
+            </form>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex gap-3">
+            <button type="button" @click="isTransactionModalOpen = false" class="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 font-semibold cursor-pointer text-sm">
+              Cancelar
+            </button>
+            <button type="submit" form="frm-transaction" class="flex-1 py-2.5 rounded-lg bg-indigo-650 hover:bg-indigo-700 text-white font-semibold cursor-pointer text-sm shadow-xs">
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==============================================
+           MODAL 2: CADASTRO / EDIÇÃO DE META (GOAL)
+           ============================================== -->
+      <div v-if="isGoalModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-end z-50">
+        <div class="bg-white w-full max-w-md h-full p-6 overflow-y-auto flex flex-col justify-between shadow-xl">
+          <div class="space-y-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+              <h3 class="text-lg font-bold font-sans text-slate-800">
+                {{ editingGoal ? 'Editar Meta de Economia' : 'Nova Meta de Economia' }}
+              </h3>
+              <button @click="isGoalModalOpen = false" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-650 cursor-pointer">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form @submit.prevent="submitGoal" class="space-y-4" id="frm-goal">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Objetivo / Nome da Meta</label>
+                <input 
+                  type="text" 
+                  required 
+                  placeholder="Ex: Reserva de Emergência, Viagem..."
+                  v-model="goalFormName"
+                  class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500"
+                />
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Categoria da Meta</label>
+                <select v-model="goalFormCategory" class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm bg-white focus:outline-hidden focus:border-indigo-500">
+                  <option value="Segurança">Segurança (Reservas, Seguros)</option>
+                  <option value="Tecnologia">Tecnologia (Smartphones, Computadores)</option>
+                  <option value="Viagem">Viagens e Lazer</option>
+                  <option value="Sonhos">Investimentos de Longo Prazo</option>
+                  <option value="Outros">Outros Objetivos</option>
+                </select>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Valor Alvo (R$)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2.5 text-xs font-bold font-mono text-slate-400">R$</span>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    min="1" 
+                    required 
+                    placeholder="0.00"
+                    v-model="goalFormTargetAmount"
+                    class="w-full py-2.5 pl-9 pr-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Valor Inicial Já Guardado (R$)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2.5 text-xs font-bold font-mono text-slate-400">R$</span>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    min="0" 
+                    v-model="goalFormCurrentAmount"
+                    class="w-full py-2.5 pl-9 pr-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-mono font-semibold text-slate-400">Prazo de Conclusão</label>
+                <input 
+                  type="date" 
+                  required 
+                  v-model="goalFormDeadline"
+                  class="py-2.5 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500 font-mono"
+                />
+              </div>
+            </form>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex gap-3">
+            <button type="button" @click="isGoalModalOpen = false" class="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 font-semibold cursor-pointer text-sm">
+              Cancelar
+            </button>
+            <button type="submit" form="frm-goal" class="flex-1 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-750 text-white font-semibold cursor-pointer text-sm shadow-xs">
+              Salvar Meta
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==============================================
+           MODAL 3: POUPAR / DEPOSITAR EM UMA META
+           ============================================== -->
+      <div v-if="isDepositModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl space-y-5 border border-slate-100">
+          <div class="flex justify-between items-center pb-3 border-b border-indigo-50">
+            <h3 class="text-sm font-bold font-sans text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+              Depositar Poupança
+            </h3>
+            <button @click="isDepositModalOpen = false" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-650 cursor-pointer">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="submitDeposit" class="space-y-4" id="frm-deposit">
+            <p class="text-xs text-slate-500 leading-relaxed">
+              O valor guardado será adicionado na meta e automaticamente deduzido da conta selecionada abaixo.
+            </p>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-mono font-semibold text-slate-400">De qual banco sairá o dinheiro?</label>
+              <select v-model="depositBank" class="py-2 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm bg-white focus:outline-hidden focus:border-indigo-500">
+                <option v-for="b in banks" :key="b.id" :value="b.name">{{ b.name }}</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-mono font-semibold text-slate-400">Quanto deseja guardar nesta meta?</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2 text-xs font-bold font-mono text-slate-400">R$</span>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  min="0.01" 
+                  required 
+                  placeholder="0.00"
+                  v-model="depositAmount"
+                  class="w-full py-2 pl-9 pr-3 rounded-lg border border-slate-200 text-slate-800 text-sm focus:outline-hidden focus:border-indigo-500 font-mono font-semibold"
+                />
+              </div>
+            </div>
+
+            <div class="pt-2 flex gap-3">
+              <button type="button" @click="isDepositModalOpen = false" class="flex-1 py-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 font-semibold cursor-pointer text-xs text-center">
+                Cancelar
+              </button>
+              <button type="submit" class="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold cursor-pointer text-xs text-center shadow-xs">
+                Poupar Agora
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ==============================================
+           MODAL 4: CONVERSÃO DE COMPRA FUTURA PARA REAL
+           ============================================== -->
+      <div v-if="isConvertModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl space-y-4 border border-slate-100">
+          <div class="flex justify-between items-center pb-2 border-b border-purple-50">
+            <h4 class="font-bold font-sans text-slate-800 text-sm uppercase tracking-wider">
+              Confirmar Compra Real!
+            </h4>
+            <button @click="isConvertModalOpen = false" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 cursor-pointer">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="submitConvertWish" class="space-y-4">
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Você escolheu converter esta simulação em uma despesa verdadeira. O dinheiro será debitado no banco escolhido abaixo.
+            </p>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-mono font-semibold text-slate-400">De qual conta debitar?</label>
+              <select v-model="convertBank" class="py-2 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm bg-white focus:outline-hidden focus:border-indigo-500">
+                <option v-for="b in banks" :key="b.id" :value="b.name">{{ b.name }}</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-mono font-semibold text-slate-400">Status do pagamento real</label>
+              <select v-model="convertStatus" class="py-2 px-3 rounded-lg border border-slate-200 text-slate-800 text-sm bg-white focus:outline-hidden focus:border-indigo-500">
+                <option value="pago">Já Pago (Dedução imediata do saldo)</option>
+                <option value="pendente">A pagar / Agendada (Dedução futura do saldo)</option>
+              </select>
+            </div>
+
+            <div class="pt-2 flex gap-3">
+              <button type="button" @click="isConvertModalOpen = false" class="flex-1 py-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 font-semibold cursor-pointer text-xs text-center">
+                Cancelar
+              </button>
+              <button type="submit" class="flex-1 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold cursor-pointer text-xs text-center shadow-xs">
+                Confirmar Compra
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VUE CORE ENGINE APPLICATION -->
+    <script>
+      const { createApp, ref, computed, onMounted, watch } = Vue;
+
+      // Default Templates
+      const INITIAL_BANKS = [
+        { id: '1', name: 'Nubank', color: 'bg-purple-700 text-white', initialBalance: 1250.00 },
+        { id: '2', name: 'Itaú', color: 'bg-orange-500 text-white', initialBalance: 2800.00 },
+        { id: '3', name: 'Inter', color: 'bg-amber-500 text-white', initialBalance: 640.00 },
+        { id: '4', name: 'Carteira (Efetivo)', color: 'bg-emerald-600 text-white', initialBalance: 150.00 }
+      ];
+
+      const INITIAL_TRANSACTIONS = [
+        { id: 't1', description: 'Salário Mensal', amount: 40500.00, type: 'receita', category: 'Salário', bank: 'Itaú', status: 'pago', date: '2026-06-05', notes: 'Salário líquido mensal' },
+        { id: 't2', description: 'Projeto Freelance UX', amount: 1200.00, type: 'receita', category: 'Freelance', bank: 'Inter', status: 'pago', date: '2026-06-12', notes: 'Desenho de interfaces' },
+        { id: 't3', description: 'Rendimento CDB', amount: 45.50, type: 'receita', category: 'Investimentos', bank: 'Nubank', status: 'pago', date: '2026-06-15' },
+        { id: 't4', description: 'Aluguel do Apartamento', amount: 1500.00, type: 'despesa', category: 'Moradia', bank: 'Itaú', status: 'pago', date: '2026-06-06' },
+        { id: 't5', description: 'Supermercado Mensal', amount: 680.40, type: 'despesa', category: 'Alimentação', bank: 'Itaú', status: 'pago', date: '2026-06-07' },
+        { id: 't6', description: 'Assinatura Netflix', amount: 55.90, type: 'despesa', category: 'Assinaturas', bank: 'Nubank', status: 'pago', date: '2026-06-10' },
+        { id: 't7', description: 'Gasolina Semanal', amount: 180.00, type: 'despesa', category: 'Transporte', bank: 'Nubank', status: 'pago', date: '2026-06-11' },
+        { id: 't8', description: 'Jantar Japonez', amount: 154.00, type: 'despesa', category: 'Lazer', bank: 'Carteira (Efetivo)', status: 'pago', date: '2026-06-14' },
+        { id: 't9', description: 'Conta de Energia', amount: 220.00, type: 'despesa', category: 'Moradia', bank: 'Itaú', status: 'pendente', date: '2026-06-25' },
+        { id: 't10', description: 'Curso de Finanças', amount: 350.00, type: 'despesa', category: 'Educação', bank: 'Nubank', status: 'pendente', date: '2026-06-28' },
+        { id: 't11', description: 'Novo Smartwatch Pro', amount: 899.00, type: 'despesa', category: 'Lazer', bank: 'Nubank', status: 'futuro', date: '2026-07-15', notes: 'Desejo de compra futuro' },
+        { id: 't12', description: 'Viagem de Fim de Semana', amount: 600.00, type: 'despesa', category: 'Lazer', bank: 'Inter', status: 'futuro', date: '2026-07-20' }
+      ];
+
+      const INITIAL_GOALS = [
+        { id: 'g1', name: 'Reserva de Emergência', targetAmount: 10000.00, currentAmount: 4200.00, deadline: '2026-12-31', category: 'Segurança' },
+        { id: 'g2', name: 'Troca de Smartphone', targetAmount: 3000.00, currentAmount: 1500.00, deadline: '2026-09-30', category: 'Tecnologia' },
+        { id: 'g3', name: 'Viagem de Férias', targetAmount: 5000.00, currentAmount: 800.00, deadline: '2026-11-20', category: 'Viagem' }
+      ];
+
+      createApp({
+        setup() {
+          // General App States
+          const activeTab = ref('dashboard');
+          const banks = ref([]);
+          const transactions = ref([]);
+          const goals = ref([]);
+
+          // Filter states
+          const search = ref('');
+          const filterType = ref('all');
+          const filterStatus = ref('all');
+          const filterBank = ref('all');
+          const filterCategory = ref('all');
+
+          // Transaction Form Modal States
+          const isTransactionModalOpen = ref(false);
+          const editingTransaction = ref(null);
+          const formType = ref('despesa');
+          const formDescription = ref('');
+          const formAmount = ref(0);
+          const formBank = ref('');
+          const formCategory = ref('');
+          const formDate = ref('');
+          const formStatus = ref('pago');
+          const formNotes = ref('');
+
+          // Goal Form Modal States
+          const isGoalModalOpen = ref(false);
+          const editingGoal = ref(null);
+          const goalFormName = ref('');
+          const goalFormTargetAmount = ref(0);
+          const goalFormCurrentAmount = ref(0);
+          const goalFormDeadline = ref('');
+          const goalFormCategory = ref('Segurança');
+
+          // Deposit Modal States
+          const isDepositModalOpen = ref(false);
+          const selectedGoal = ref(null);
+          const depositBank = ref('');
+          const depositAmount = ref(0);
+
+          // Convert Wishlist item Modal States
+          const isConvertModalOpen = ref(false);
+          const selectedWish = ref(null);
+          const convertBank = ref('');
+          const convertStatus = ref('pago');
+
+          // Categories Configuration
+          const categories = {
+            receita: ['Salário', 'Freelance', 'Investimentos', 'Prêmios', 'Outros'],
+            despesa: ['Moradia', 'Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Assinaturas', 'Seguros', 'Investimentos', 'Outros']
+          };
+
+          const allCategories = computed(() => {
+            return [...categories.receita, ...categories.despesa];
+          });
+
+          // Mount state from LocalStorage
+          onMounted(() => {
+            const savedBanks = localStorage.getItem('fin_banks_html');
+            const savedTrans = localStorage.getItem('fin_transactions_html');
+            const savedGoals = localStorage.getItem('fin_goals_html');
+
+            if (savedBanks && savedTrans && savedGoals) {
+              banks.value = JSON.parse(savedBanks);
+              transactions.value = JSON.parse(savedTrans);
+              goals.value = JSON.parse(savedGoals);
+            } else {
+              resetToDefault();
+            }
+          });
+
+          // Reset helper
+          const resetToDefault = () => {
+            banks.value = JSON.parse(JSON.stringify(INITIAL_BANKS));
+            transactions.value = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+            goals.value = JSON.parse(JSON.stringify(INITIAL_GOALS));
+            saveToLocalStorage();
+          };
+
+          const resetData = () => {
+            if (confirm('Tem certeza de que deseja redefinir todas as contas e transações para os dados iniciais?')) {
+              resetToDefault();
+              activeTab.value = 'dashboard';
+            }
+          };
+
+          const saveToLocalStorage = () => {
+            localStorage.setItem('fin_banks_html', JSON.stringify(banks.value));
+            localStorage.setItem('fin_transactions_html', JSON.stringify(transactions.value));
+            localStorage.setItem('fin_goals_html', JSON.stringify(goals.value));
+          };
+
+          // Watch structures to save changes automatically
+          watch([banks, transactions, goals], () => {
+            saveToLocalStorage();
+          }, { deep: true });
+
+          // Format numeric currency helper
+          const formatMoney = (value) => {
+            if (typeof value !== 'number') return '0,00';
+            return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          };
+
+          // Dynamic calculation of balances (where money left or entered)
+          const calculatedBanks = computed(() => {
+            return banks.value.map(bank => {
+              const bankTrans = transactions.value.filter(t => t.bank.toLowerCase() === bank.name.toLowerCase());
+              
+              const revenuePaid = bankTrans
+                .filter(t => t.type === 'receita' && t.status === 'pago')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+              const expensePaid = bankTrans
+                .filter(t => t.type === 'despesa' && t.status === 'pago')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+              const revenuePending = bankTrans
+                .filter(t => t.type === 'receita' && t.status === 'pendente')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+              const expensePending = bankTrans
+                .filter(t => t.type === 'despesa' && t.status === 'pendente')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+              const currentBalance = bank.initialBalance + revenuePaid - expensePaid;
+              const projectedBalance = currentBalance + revenuePending - expensePending;
+
+              return {
+                ...bank,
+                currentBalance,
+                projectedBalance
+              };
+            });
+          });
+
+          // Consolidated general metrics
+          const totals = computed(() => {
+            const paidRevenues = transactions.value
+              .filter(t => t.type === 'receita' && t.status === 'pago')
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            const paidExpenses = transactions.value
+              .filter(t => t.type === 'despesa' && t.status === 'pago')
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            const pendingRevenues = transactions.value
+              .filter(t => t.type === 'receita' && t.status === 'pendente')
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            const pendingExpenses = transactions.value
+              .filter(t => t.type === 'despesa' && t.status === 'pendente')
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalWishlistBalance = transactions.value
+              .filter(t => t.status === 'futuro')
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalRealBalance = calculatedBanks.value.reduce((sum, b) => sum + b.currentBalance, 0);
+            const totalProjectedBalance = calculatedBanks.value.reduce((sum, b) => sum + b.projectedBalance, 0);
+
+            return {
+              paidRevenues,
+              paidExpenses,
+              pendingRevenues,
+              pendingExpenses,
+              totalRealBalance,
+              totalProjectedBalance,
+              totalWishlistBalance
+            };
+          });
+
+          // Category analysis computed list
+          const categorySummary = computed(() => {
+            const summaries = {};
+            transactions.value
+              .filter(t => t.type === 'despesa' && t.status !== 'futuro')
+              .forEach(t => {
+                if (!summaries[t.category]) {
+                  summaries[t.category] = 0;
+                }
+                summaries[t.category] += t.amount;
+              });
+
+            const totalExp = Object.values(summaries).reduce((s, v) => s + v, 0);
+
+            return Object.keys(summaries).map(key => {
+              const value = summaries[key];
+              return {
+                name: key,
+                value,
+                pct: totalExp > 0 ? parseFloat(((value / totalExp) * 100).toFixed(1)) : 0
+              };
+            }).sort((a, b) => b.value - a.value);
+          });
+
+          const getCategoryColor = (index) => {
+            const colors = ['#4F46E5', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#6B7280'];
+            return colors[index % colors.length];
+          };
+
+          // Filtered list of transactions
+          const filteredTransactions = computed(() => {
+            return transactions.value.filter(t => {
+              const matchSearch = t.description.toLowerCase().includes(search.value.toLowerCase()) ||
+                                  (t.notes || '').toLowerCase().includes(search.value.toLowerCase());
+              const matchType = filterType.value === 'all' || t.type === filterType.value;
+              const matchStatus = filterStatus.value === 'all' || t.status === filterStatus.value;
+              const matchBank = filterBank.value === 'all' || t.bank === filterBank.value;
+              const matchCategory = filterCategory.value === 'all' || t.category === filterCategory.value;
+
+              return matchSearch && matchType && matchStatus && matchBank && matchCategory;
+            }).sort((a, b) => b.date.localeCompare(a.date));
+          });
+
+          // Pending and Wishlist computed items
+          const pendingTransactions = computed(() => {
+            return transactions.value.filter(t => t.status === 'pendente');
+          });
+
+          const wishlistItems = computed(() => {
+            return transactions.value.filter(t => t.status === 'futuro');
+          });
+
+          const wishlistCount = computed(() => {
+            return wishlistItems.value.length;
+          });
+
+          // Percentage helpers for SVG / bar rendering
+          const getPercentage = (value, max) => {
+            if (max <= 0) return 0;
+            return (value / max) * 100;
+          };
+
+          const getGoalProgress = (goal) => {
+            if (goal.targetAmount <= 0) return 0;
+            return (goal.currentAmount / goal.targetAmount) * 100;
+          };
+
+          // Financial advices matching general cash status
+          const getFinancialAdvice = () => {
+            const bal = totals.value.totalRealBalance;
+            const wishTotal = totals.value.totalWishlistBalance;
+            if (bal <= 0) {
+              return 'Sua carteira geral está negativada ou zerada. Evite novos planos e gaste apenas com o que for estritamente urgente!';
+            } else if (bal < wishTotal) {
+              return 'Seu orçamento acumulado de desejos futuros é maior do que suas reservas líquidas de conta. Considere adiar algumas simulações.';
+            } else {
+              return 'Excelente! Seu saldo consolidado líquido atual cobre perfeitamente todo o seu cronograma de desejos e compras futuras simuladas!';
+            }
+          };
+
+          // --- MODALS ACTIONS ---
+
+          // Lançamentos
+          const openNewTransactionModal = () => {
+            editingTransaction.value = null;
+            formType.value = 'despesa';
+            formDescription.value = '';
+            formAmount.value = 0;
+            formBank.value = banks.value[0]?.name || 'Nubank';
+            formCategory.value = categories.despesa[0];
+            formDate.value = new Date().toISOString().split('T')[0];
+            formStatus.value = 'pago';
+            formNotes.value = '';
+            isTransactionModalOpen.value = true;
+          };
+
+          const openEditTransactionModal = (t) => {
+            editingTransaction.value = t;
+            formType.value = t.type;
+            formDescription.value = t.description;
+            formAmount.value = t.amount;
+            formBank.value = t.bank;
+            formCategory.value = t.category;
+            formDate.value = t.date;
+            formStatus.value = t.status;
+            formNotes.value = t.notes || '';
+            isTransactionModalOpen.value = true;
+          };
+
+          const submitTransaction = () => {
+            if (!formDescription.value || formAmount.value <= 0) {
+              alert('Preencha os campos obrigatórios corretamente.');
+              return;
+            }
+
+            const data = {
+              description: formDescription.value,
+              amount: formAmount.value,
+              type: formType.value,
+              category: formCategory.value,
+              bank: formBank.value,
+              status: formStatus.value,
+              date: formDate.value,
+              notes: formNotes.value || undefined
+            };
+
+            if (editingTransaction.value) {
+              transactions.value = transactions.value.map(t => t.id === editingTransaction.value.id ? { ...t, ...data } : t);
+            } else {
+              const newTrans = {
+                id: 't_' + Date.now().toString(36),
+                ...data
+              };
+              transactions.value = [newTrans, ...transactions.value];
+            }
+
+            isTransactionModalOpen.value = false;
+          };
+
+          const deleteTransaction = (id) => {
+            if (confirm('Tem certeza de que deseja apagar este lançamento?')) {
+              transactions.value = transactions.value.filter(t => t.id !== id);
+            }
+          };
+
+          const toggleTransactionStatus = (id) => {
+            transactions.value = transactions.value.map(t => {
+              if (t.id === id) {
+                let nextStatus = t.status;
+                if (t.status === 'pago') nextStatus = 'pendente';
+                else if (t.status === 'pendente') nextStatus = 'pago';
+                return { ...t, status: nextStatus };
+              }
+              return t;
+            });
+          };
+
+          // Metas de economia
+          const openNewGoalModal = () => {
+            editingGoal.value = null;
+            goalFormName.value = '';
+            goalFormTargetAmount.value = 0;
+            goalFormCurrentAmount.value = 0;
+            goalFormDeadline.value = new Date().toISOString().split('T')[0];
+            goalFormCategory.value = 'Segurança';
+            isGoalModalOpen.value = true;
+          };
+
+          const openEditGoalModal = (g) => {
+            editingGoal.value = g;
+            goalFormName.value = g.name;
+            goalFormTargetAmount.value = g.targetAmount;
+            goalFormCurrentAmount.value = g.currentAmount;
+            goalFormDeadline.value = g.deadline;
+            goalFormCategory.value = g.category || 'Segurança';
+            isGoalModalOpen.value = true;
+          };
+
+          const submitGoal = () => {
+            if (!goalFormName.value || goalFormTargetAmount.value <= 0) {
+              alert('Insira uma meta e valor alvo válido.');
+              return;
+            }
+
+            const data = {
+              name: goalFormName.value,
+              targetAmount: goalFormTargetAmount.value,
+              currentAmount: goalFormCurrentAmount.value,
+              deadline: goalFormDeadline.value,
+              category: goalFormCategory.value
+            };
+
+            if (editingGoal.value) {
+              goals.value = goals.value.map(g => g.id === editingGoal.value.id ? { ...g, ...data } : g);
+            } else {
+              const newGoal = {
+                id: 'g_' + Date.now().toString(36),
+                ...data
+              };
+              goals.value = [...goals.value, newGoal];
+            }
+
+            isGoalModalOpen.value = false;
+          };
+
+          const deleteGoal = (id) => {
+            if (confirm('Excluir esta meta de economia de forma permanente?')) {
+              goals.value = goals.value.filter(g => g.id !== id);
+            }
+          };
+
+          // Depósito em metas (poupando do saldo real de um banco para a meta)
+          const triggerDeposit = (goal) => {
+            selectedGoal.value = goal;
+            depositBank.value = banks.value[0]?.name || 'Nubank';
+            depositAmount.value = 0;
+            isDepositModalOpen.value = true;
+          };
+
+          const submitDeposit = () => {
+            if (depositAmount.value <= 0) return;
+
+            // 1. Increment goal current savings
+            goals.value = goals.value.map(g => {
+              if (g.id === selectedGoal.value.id) {
+                return {
+                  ...g,
+                  currentAmount: g.currentAmount + depositAmount.value
+                };
+              }
+              return g;
+            });
+
+            // 2. Insert dynamic transfer transaction deducting the amount from bank
+            const savingsTransaction = {
+              id: 't_savings_' + Date.now().toString(36),
+              description: `Poupado para Meta: ${selectedGoal.value.name}`,
+              amount: depositAmount.value,
+              type: 'despesa',
+              category: 'Investimentos',
+              bank: depositBank.value,
+              status: 'pago',
+              date: new Date().toISOString().split('T')[0],
+              notes: `Dedução de poupança da conta ${depositBank.value} para o objetivo ${selectedGoal.value.name}.`
+            };
+
+            transactions.value = [savingsTransaction, ...transactions.value];
+            isDepositModalOpen.value = false;
+          };
+
+          // Lista de Desejos (Desejos & Compras Futuras)
+          const openNewWishModal = () => {
+            editingTransaction.value = null;
+            formType.value = 'despesa';
+            formDescription.value = '';
+            formAmount.value = 0;
+            formBank.value = banks.value[0]?.name || 'Nubank';
+            formCategory.value = categories.despesa[0];
+            formDate.value = new Date().toISOString().split('T')[0];
+            formStatus.value = 'futuro'; // forcing futuro
+            formNotes.value = 'Compra futura planejada';
+            isTransactionModalOpen.value = true;
+          };
+
+          // Confirm real buy (convert simulating items into actual paid or pending expense)
+          const triggerConvertWish = (item) => {
+            selectedWish.value = item;
+            convertBank.value = item.bank;
+            convertStatus.value = 'pago';
+            isConvertModalOpen.value = true;
+          };
+
+          const submitConvertWish = () => {
+            transactions.value = transactions.value.map(t => {
+              if (t.id === selectedWish.value.id) {
+                return {
+                  ...t,
+                  bank: convertBank.value,
+                  status: convertStatus.value,
+                  date: new Date().toISOString().split('T')[0],
+                  notes: `Simulação de Desejo convertida com sucesso em despesa real (${convertStatus.value === 'pago' ? 'paga' : 'agendada/pendente'}).`
+                };
+              }
+              return t;
+            });
+
+            isConvertModalOpen.value = false;
+          };
+
+          return {
+            activeTab,
+            banks,
+            transactions,
+            goals,
+            search,
+            filterType,
+            filterStatus,
+            filterBank,
+            filterCategory,
+            categories,
+            allCategories,
+            formatMoney,
+            calculatedBanks,
+            totals,
+            categorySummary,
+            getCategoryColor,
+            filteredTransactions,
+            pendingTransactions,
+            wishlistItems,
+            wishlistCount,
+            getPercentage,
+            getGoalProgress,
+            getFinancialAdvice,
+            resetData,
+
+            // Modals & Action methods
+            isTransactionModalOpen,
+            editingTransaction,
+            formType,
+            formDescription,
+            formAmount,
+            formBank,
+            formCategory,
+            formDate,
+            formStatus,
+            formNotes,
+            openNewTransactionModal,
+            openEditTransactionModal,
+            submitTransaction,
+            deleteTransaction,
+            toggleTransactionStatus,
+
+            isGoalModalOpen,
+            editingGoal,
+            goalFormName,
+            goalFormTargetAmount,
+            goalFormCurrentAmount,
+            goalFormDeadline,
+            goalFormCategory,
+            openNewGoalModal,
+            openEditGoalModal,
+            submitGoal,
+            deleteGoal,
+
+            isDepositModalOpen,
+            selectedGoal,
+            depositBank,
+            depositAmount,
+            triggerDeposit,
+            submitDeposit,
+
+            isConvertModalOpen,
+            selectedWish,
+            convertBank,
+            convertStatus,
+            triggerConvertWish,
+            submitConvertWish,
+            openNewWishModal
+          };
+        }
+      }).mount('#app');
+    </script>
+  </body>
+</html>
